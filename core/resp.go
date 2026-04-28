@@ -2,7 +2,26 @@ package core
 
 import (
 	"errors"
+	"fmt"
 )
+
+// DecodeArrayString decodes a RESP encoded array of bulk strings and returns
+// the array of strings and the error
+func DecodeArrayString(data []byte) ([]string, error) {
+	value, err := Decode(data)
+	if err != nil {
+		return nil, err
+	}
+
+	ts := value.([]interface{})
+	tokens := make([]string, len(ts))
+	for i := range tokens {
+		tokens[i] = ts[i].(string)
+	}
+
+	return tokens, nil
+
+}
 
 func Decode(data []byte) (interface{}, error) {
 	if len(data) == 0 {
@@ -114,4 +133,16 @@ func readLength(data []byte) (int, int) {
 		length = length*10 + int(b-'0')
 	}
 	return 0, 0
+}
+
+func Encode(value interface{}, isSimple bool) []byte {
+	switch v := value.(type) {
+	case string:
+		if isSimple {
+			return []byte(fmt.Sprintf("+%s\r\n", v))
+		}
+		return []byte(fmt.Sprintf("$%d\r\n%s\r\n", len(v), v))
+	}
+
+	return []byte{}
 }

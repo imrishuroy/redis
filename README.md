@@ -58,8 +58,25 @@ Or customize the host and port:
 
 ## Testing
 
-Connect using netcat or redis-cli:
+Connect using the official redis-cli:
+
+```bash
+brew install redis
+redis-cli -p 6379
+```
+
+Or using netcat:
 
 ```bash
 nc localhost 6379
 ```
+
+### Benchmarking
+
+```bash
+redis-benchmark -n 10000 -t ping_mbulk -c 1 -h localhost -p 6379
+```
+
+### Note on CLI Clients
+
+The official `redis-cli` displays bulk strings with double quotes (e.g., `"hello"`), while third-party clients like `rdcli` may display them without quotes. This is purely a display difference - the server returns the correct RESP bulk string format in both cases.
